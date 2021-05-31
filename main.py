@@ -24,30 +24,41 @@ moon_label.place(x=250)
 
 courier_new = font.Font(family='Courier New', size=20)
 font2 = font.Font(family='Comic Sans MS', size=8)
+font3 = font.Font(family='Comic Sans MS', size=20)
 
 entry = Entry(root, width=25, borderwidth=1)
 entry.place(x=125, y=5)
 
 def enterStock(event=None):
+    global isMonitoring
+    global priceLabel
+    global tickerLabel
+
     isMonitoring = True
     ticker = entry.get()
     livePrice = get_live_price(ticker.upper())
-    myLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=courier_new, borderwidth=3, relief="ridge")
-    myLabel.place(x=50, y=150)
+    priceLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=font3, borderwidth=3, relief="ridge")
+    priceLabel.place(x=50, y=150)
+    tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=font3, borderwidth=3, relief='ridge')
+    tickerLabel.place(x=135, y=110)
     while isMonitoring:
-        myLabel.configure(text=get_live_price(ticker.upper()))
+        priceLabel.configure(text=get_live_price(ticker.upper()))
         root.update()
 
 root.bind('<Return>', enterStock)
 
 def cancelProcess():
-    print(isMonitoring)
+    global isMonitoring
+    isMonitoring = False
+    tickerLabel.destroy()
+    priceLabel.destroy()
+    
 
 button = Button(root, text="Enter", command=enterStock, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
-button.place(x=125, y=30)
+button.place(x=125, y=35)
 
 cancelButton = Button(root, text="Stop", command=cancelProcess, width=21, borderwidth=1, background='maroon', relief='ridge', font=font2)
-cancelButton.place(x=125, y=75)
+cancelButton.place(x=125, y=65)
 
 doge_img = ImageTk.PhotoImage(Image.open("StockInfo/doge3.png"))
 doge_label = Label(image = doge_img, background='#17211E')
