@@ -28,7 +28,7 @@ font2 = font.Font(family='Comic Sans MS', size=8)
 entry = Entry(root, width=25, borderwidth=1)
 entry.place(x=125, y=5)
 
-def enterStock():
+def enterStock(event=None):
     isMonitoring = True
     ticker = entry.get()
     livePrice = get_live_price(ticker.upper())
@@ -38,17 +38,18 @@ def enterStock():
         myLabel.configure(text=get_live_price(ticker.upper()))
         root.update()
 
+root.bind('<Return>', enterStock)
+
 def cancelProcess():
-    isMonitoring = False
     print(isMonitoring)
 
 button = Button(root, text="Enter", command=enterStock, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
 button.place(x=125, y=30)
 
 cancelButton = Button(root, text="Stop", command=cancelProcess, width=21, borderwidth=1, background='maroon', relief='ridge', font=font2)
-cancelButton.place(x=125, y=80)
+cancelButton.place(x=125, y=75)
 
-doge_img = ImageTk.PhotoImage(Image.open("StockInfo/doge2.png"))
+doge_img = ImageTk.PhotoImage(Image.open("StockInfo/doge3.png"))
 doge_label = Label(image = doge_img, background='#17211E')
 doge_label.place(y = 220)
 
