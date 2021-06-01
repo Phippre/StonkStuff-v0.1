@@ -13,6 +13,8 @@ root.title('~Stonk Stuff v0.1')
 root.geometry('400x400')
 root.configure()
 root.iconbitmap('StockInfo/rocket2.ico')
+root.resizable(False, False)
+root.attributes('-topmost', True)
 
 space_img = ImageTk.PhotoImage(Image.open("StockInfo/space_2.png"))
 space_label = Label(image = space_img)
@@ -37,10 +39,10 @@ def enterStock(event=None):
     isMonitoring = True
     ticker = entry.get()
     livePrice = get_live_price(ticker.upper())
-    priceLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=font3, borderwidth=3, relief="ridge")
-    priceLabel.place(x=50, y=150)
-    tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=font3, borderwidth=3, relief='ridge')
-    tickerLabel.place(x=135, y=110)
+    priceLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=courier_new, borderwidth=3, relief="ridge", width=20)
+    priceLabel.place(relx=.10, y=150)
+    tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=courier_new, borderwidth=3, relief='ridge', width=9)
+    tickerLabel.place(relx=.32, y=110)
     while isMonitoring:
         priceLabel.configure(text=get_live_price(ticker.upper()))
         root.update()
@@ -54,10 +56,10 @@ def cancelProcess():
     priceLabel.destroy()
     
 
-button = Button(root, text="Enter", command=enterStock, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
+button = Button(root, text="Much Start", command=enterStock, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
 button.place(x=125, y=35)
 
-cancelButton = Button(root, text="Stop", command=cancelProcess, width=21, borderwidth=1, background='maroon', relief='ridge', font=font2)
+cancelButton = Button(root, text="Such Stop", command=cancelProcess, width=21, borderwidth=1, background='maroon', relief='ridge', font=font2)
 cancelButton.place(x=125, y=65)
 
 doge_img = ImageTk.PhotoImage(Image.open("StockInfo/doge3.png"))
