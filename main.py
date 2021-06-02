@@ -24,7 +24,7 @@ os.chdir('C:/Users/parke/Documents/GitHub/StonkStuff')
 
 #SETTING UP ROOT WINDOW~~~~~~~~
 root = tk.Tk()
-root.title('~Stonk Stuff v0.1')
+root.title('~Stonk Stuff v0.2')
 root.geometry('1000x400')
 root.configure()
 root.iconbitmap('StonkStuff/rocket2.ico')
@@ -89,6 +89,7 @@ cancelButton = Button(root, text="Such Stop", command=cancelProcess, width=21, b
 cancelButton.place(x=125, y=65)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#GRAPH~~~~~~~~~~~~~~~~~~~~~~~~~
 start = dt.datetime(2021, 3, 1)
 end = dt.datetime.now()
 data = pandas_datareader.DataReader('DOGE-USD', 'yahoo', start, end)
@@ -112,6 +113,7 @@ candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
 canvas = FigureCanvasTkAgg(f, root)
 canvas.draw()
 canvas.get_tk_widget().place(x=400, y=0, width=600, height=400)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 root.bind('<Return>', enterStock)
