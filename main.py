@@ -17,9 +17,11 @@ from PIL import ImageTk, Image
 import os
 import time
 from mpl_finance import candlestick_ohlc
+import threading
 
 isMonitoring = False
 
+#Change Directory
 os.chdir('C:/Users/parke/Documents/GitHub/StonkStuff')
 
 #SETTING UP ROOT WINDOW~~~~~~~~
@@ -27,21 +29,21 @@ root = tk.Tk()
 root.title('~Stonk Stuff v0.2')
 root.geometry('1000x400')
 root.configure()
-root.iconbitmap('StonkStuff/rocket2.ico')
+root.iconbitmap('StonkStuff/res/rocket2.ico')
 root.resizable(False, False)
 root.attributes('-topmost', True)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #IMAGES AND FONTS~~~~~~~~~~~~~~
-space_img = ImageTk.PhotoImage(Image.open("StonkStuff/space_2.png"))
+space_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/space_2.png"))
 space_label = Label(image = space_img)
 space_label.place(x=-2, y=-2)
 
-moon_img = ImageTk.PhotoImage(Image.open("StonkStuff/moon.png"))
+moon_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/moon.png"))
 moon_label = Label(image=moon_img, borderwidth=0)
 moon_label.place(x=250)
 
-doge_img = ImageTk.PhotoImage(Image.open("StonkStuff/doge3.png"))
+doge_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/doge3.png"))
 doge_label = Label(image = doge_img, background='#17211E')
 doge_label.place(y = 220)
 
@@ -51,10 +53,22 @@ font3 = font.Font(family='Comic Sans MS', size=20)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #METHODS~~~~~~~~~~~~~~~~~~~~~~~
+def updatePrice():
+    global isMonitoring
+    global ticker
+
+    if isMonitoring == True:
+        print(isMonitoring)
+        priceLabel.configure(text=get_live_price(ticker.upper()))
+        root.after(1000, updatePrice)
+    else:
+        return
+
 def enterStock(event=None):
     global isMonitoring
     global priceLabel
     global tickerLabel
+    global ticker
 
     isMonitoring = True
     ticker = entry.get()
@@ -63,11 +77,12 @@ def enterStock(event=None):
     priceLabel.place(x=45, y=150)
     tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=courier_new, borderwidth=3, relief='ridge', width=9)
     tickerLabel.place(relx=.125, y=110)
-    while isMonitoring:
-        priceLabel.configure(text=get_live_price(ticker.upper()))
-        root.update()
+    updatePrice()
 
-
+    #Previous code for updating price (Slow and freezes screen)
+    #while isMonitoring: 
+    #    priceLabel.configure(text=get_live_price(ticker.upper()))
+    #    root.update()
 
 def cancelProcess():
     global isMonitoring
@@ -108,7 +123,6 @@ a.tick_params(axis='x', colors='white')
 a.tick_params(axis='y', colors='white')
 myFmt = DateFormatter("%m/%d")
 a.xaxis.set_major_formatter(myFmt)
-#a.xaxis_date()
 candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
 canvas = FigureCanvasTkAgg(f, root)
 canvas.draw()
