@@ -1,4 +1,5 @@
 
+from matplotlib.colors import Normalize
 import pandas_datareader
 import matplotlib.pyplot as plt
 import matplotlib
@@ -7,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 import datetime as dt
 import matplotlib.dates as mdates
+from matplotlib.dates import DateFormatter
 from yahoo_fin.stock_info import *
 import tkinter as tk
 from tkinter import *
@@ -94,16 +96,18 @@ data = data[['Open', 'High', 'Low', 'Close']]
 data.reset_index(inplace=True)
 data['Date'] = data['Date'].map(mdates.date2num)
 
-f = Figure(figsize=(5,5), dpi=100)
+f = Figure(figsize=(1, 1), dpi=65)
 a = f.add_subplot(111)
 a.grid(True)
 a.set_axisbelow(True)
 a.set_title('DOGE Price', color='white')
-a.set_facecolor('black')
+a.set_facecolor('#17211E')
 a.figure.set_facecolor('#17211E')
 a.tick_params(axis='x', colors='white')
 a.tick_params(axis='y', colors='white')
-a.xaxis_date()
+myFmt = DateFormatter("%m/%d")
+a.xaxis.set_major_formatter(myFmt)
+#a.xaxis_date()
 candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
 canvas = FigureCanvasTkAgg(f, root)
 canvas.draw()
