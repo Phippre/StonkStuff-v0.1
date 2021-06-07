@@ -1,23 +1,21 @@
-
-from matplotlib.colors import Normalize
-import pandas_datareader
-import matplotlib.pyplot as plt
 import matplotlib
+
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
 import datetime as dt
-import matplotlib.dates as mdates
-from matplotlib.dates import DateFormatter
-from yahoo_fin.stock_info import *
-import tkinter as tk
-from tkinter import *
-import tkinter.font as font
-from PIL import ImageTk, Image
 import os
-import time
+import tkinter as tk
+import tkinter.font as font
+from threading import *
+from tkinter import *
+
+import matplotlib.dates as mdates
+import pandas_datareader
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.dates import DateFormatter
+from matplotlib.figure import Figure
 from mpl_finance import candlestick_ohlc
-import threading
+from PIL import Image, ImageTk
+from yahoo_fin.stock_info import *
 
 isMonitoring = False
 
@@ -61,13 +59,19 @@ font3 = font.Font(family='Comic Sans MS', size=20)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #METHODS~~~~~~~~~~~~~~~~~~~~~~~
+def startThread():
+    global t1
+
+    t1 = Thread(target=enterStock)
+    t1.start()
+
 def updatePrice():
     global isMonitoring
     global ticker
 
-    if isMonitoring == True:
+    while isMonitoring == True:
         priceLabel.configure(text=get_live_price(ticker.upper()))
-        root.after(1000, updatePrice)
+        root.update()
     else:
         return
 
@@ -87,12 +91,8 @@ def enterStock(event=None):
     processGraph()
     updatePrice()
 
-    #Previous code for updating price (Slow and freezes screen)
-    #while isMonitoring: 
-    #    priceLabel.configure(text=get_live_price(ticker.upper()))
-    #    root.update()
-
 def processGraph():
+    global canvas
     #Start and end dates for graph
     start = dt.datetime(2021, 3, 1)
     end = dt.datetime.now()
@@ -106,14 +106,14 @@ def processGraph():
     #Graphics
     f = Figure(figsize=(1, 1), dpi=65)
     a = f.add_subplot(111)
+    a.set_facecolor('#17211E')
+    a.figure.set_facecolor('#17211E')
     a.grid(True)
     a.set_axisbelow(True)
     a.set_title('DOGE Price', color='white')
-    a.set_facecolor('#17211E')
-    a.figure.set_facecolor('#17211E')
     a.tick_params(axis='x', colors='white')
     a.tick_params(axis='y', colors='white')
-    myFmt = DateFormatter("%m/%d")
+    myFmt = DateFormatter("%m / %d")
     a.xaxis.set_major_formatter(myFmt)
     candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
     canvas = FigureCanvasTkAgg(f, root)
@@ -122,9 +122,13 @@ def processGraph():
 
 def cancelProcess():
     global isMonitoring
+    global t1
+    global canvas
+
     isMonitoring = False
     tickerLabel.destroy()
     priceLabel.destroy()
+    canvas.get_tk_widget().destroy()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #TEXT ENTRY FIELD~~~~~~~~~~~~~~
@@ -133,38 +137,12 @@ entry.place(x=125, y=5)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
 #BUTTONS~~~~~~~~~~~~~~~~~~~~~~~
-button = Button(root, text="Much Start", command=enterStock, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
-button.place(x=125, y=35)
+startButton = Button(root, text="Much Start", command=startThread, width=21, borderwidth=1, background='green', relief='ridge', font=font2)
+startButton.place(x=125, y=35)
 
 cancelButton = Button(root, text="Such Stop", command=cancelProcess, width=21, borderwidth=1, background='maroon', relief='ridge', font=font2)
 cancelButton.place(x=125, y=65)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#GRAPH~~~~~~~~~~~~~~~~~~~~~~~~~
-""" start = dt.datetime(2021, 3, 1)
-end = dt.datetime.now()
-data = pandas_datareader.DataReader(ticker, 'yahoo', start, end)
-data = data[['Open', 'High', 'Low', 'Close']]
-data.reset_index(inplace=True)
-data['Date'] = data['Date'].map(mdates.date2num)
-
-f = Figure(figsize=(1, 1), dpi=65)
-a = f.add_subplot(111)
-a.grid(True)
-a.set_axisbelow(True)
-a.set_title('DOGE Price', color='white')
-a.set_facecolor('#17211E')
-a.figure.set_facecolor('#17211E')
-a.tick_params(axis='x', colors='white')
-a.tick_params(axis='y', colors='white')
-myFmt = DateFormatter("%m/%d")
-a.xaxis.set_major_formatter(myFmt)
-candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
-canvas = FigureCanvasTkAgg(f, root)
-canvas.draw()
-canvas.get_tk_widget().place(x=400, y=0, width=600, height=400) """
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 root.bind('<Return>', enterStock)
 root.mainloop()
