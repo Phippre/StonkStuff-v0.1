@@ -60,6 +60,8 @@ font2 = font.Font(family='Comic Sans MS', size=8)
 font3 = font.Font(family='Comic Sans MS', size=20)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#ADD FUCKING MULTITHREADING HERE FOR FUCK SAKE. THIS SHIT BE FREEZIN'
+
 #METHODS~~~~~~~~~~~~~~~~~~~~~~~
 def updatePrice():
     global isMonitoring
