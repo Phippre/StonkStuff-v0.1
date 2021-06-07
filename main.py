@@ -24,7 +24,7 @@ os.chdir('C:/Users/parke/Documents/GitHub/StonkStuff')
 
 #SETTING UP ROOT WINDOW~~~~~~~~
 root = tk.Tk()
-root.title('~Stonk Stuff v0.2')
+root.title('~Stonk Stuff v0.3')
 root.geometry('1000x400')
 root.configure()
 root.iconbitmap('StonkStuff/res/rocket2.ico')
@@ -58,13 +58,8 @@ font2 = font.Font(family='Comic Sans MS', size=8)
 font3 = font.Font(family='Comic Sans MS', size=20)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#ADD FUCKING MULTITHREADING HERE FOR FUCK SAKE. THIS SHIT BE FREEZIN'
-#https://www.geeksforgeeks.org/how-to-use-thread-in-tkinter-python/
-
 #METHODS~~~~~~~~~~~~~~~~~~~~~~~
 def startThread():
-    global t1
-
     t1 = Thread(target=enterStock)
     t1.start()
 
@@ -125,7 +120,6 @@ def processGraph():
 
 def cancelProcess():
     global isMonitoring
-    global t1
     global canvas
 
     isMonitoring = False
