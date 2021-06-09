@@ -5,7 +5,7 @@ import datetime as dt
 import os
 import tkinter as tk
 import tkinter.font as font
-import threading
+from threading import Thread
 from tkinter import *
 
 import matplotlib.dates as mdates
@@ -38,6 +38,7 @@ tickerLabel = NONE
 ticker = NONE
 canvas = NONE
 t1 = NONE
+stopThread = False
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #IMAGES AND FONTS~~~~~~~~~~~~~~
@@ -88,7 +89,7 @@ def startThread():
 
     isMonitoring = True
 
-    t1 = threading.Thread(target=enterStock)
+    t1 = Thread(target=enterStock)
     t1.start()
 
 def enterStock(event=None):
@@ -112,10 +113,11 @@ def updatePrice():
     global labelsDestroyed
     #A loop that is long that "isMonitoring" is true, it will ask the Yahoo API for the price and update the GUI
     while isMonitoring == True: #Dont call a refernece of the global variable "isMonitoring" here because im not changing the variable locally in the funtion
+        global stopThread
         priceLabel.configure(text=get_live_price(ticker.upper()))
         root.update()
-    else:
-        return
+        if stopThread:
+            break
 
 def processGraph():
     global canvas
@@ -151,7 +153,9 @@ def cancelProcess():
     global tickerLabel
     global priceLabel
     global canvas
+    global stopThread
     #set up boolean variables to destroy these
+    stopThread = True
     tickerLabel.destroy()
     priceLabel.destroy()
     canvas.get_tk_widget().destroy()
