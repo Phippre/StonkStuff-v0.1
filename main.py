@@ -30,26 +30,35 @@ root.resizable(False, False)
 root.attributes('-topmost', True)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Declaring dates for graph~~~~~
+end = dt.datetime.now()
+start = end - dt.timedelta(weeks=7)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 #Declaring global variables~~~~
 isMonitoring = False
-entry = NONE
-priceLabel = NONE
+stopThread = False
 tickerLabel = NONE
+priceLabel = NONE
 ticker = NONE
 canvas = NONE
+entry = NONE
+data = NONE
 t1 = NONE
-stopThread = False
+f = NONE
+a = NONE
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #IMAGES AND FONTS~~~~~~~~~~~~~~
 #Here we are making images and font using the Tkinter functions
 space_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/space_2.png"))
-moon_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/moon.png"))
 doge_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/doge3.png"))
+moon_img = ImageTk.PhotoImage(Image.open("StonkStuff/res/moon.png"))
 
 courier_new = font.Font(family='Courier New', size=20)
-font2 = font.Font(family='Comic Sans MS', size=8)
+
 font3 = font.Font(family='Comic Sans MS', size=20)
+font2 = font.Font(family='Comic Sans MS', size=8)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #METHODS~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,61 +90,10 @@ def renderAssets():
     entry = Entry(root, width=25, borderwidth=1)
     entry.place(x=50, y=25)
 
-def startThread():
-    #Starting a thread in the function that calls the "enterStock" function and sets off the chain reaction to call other functions
-    #This function is called when clicking the start button. 
-    global isMonitoring
-    global t1
+def defineGraph():
+    global f, a
 
-    isMonitoring = True
-
-    t1 = Thread(target=enterStock)
-    t1.run()
-
-def enterStock(event=None):
-    #This function is called by the Thread function. A lot here so I will explain line by line of my shitty organization and thought processes. [[]]
-    print("Thread is running")
-    global priceLabel
-    global tickerLabel
-    global ticker
-
-    ticker = entry.get()
-
-    livePrice = get_live_price(ticker.upper())
-    priceLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=courier_new, borderwidth=3, relief="ridge", width=20)
-    priceLabel.place(x=50, y=170)
-    tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=courier_new, borderwidth=3, relief='ridge', width=9)
-    tickerLabel.place(x=50, y=130)
-
-    processGraph()
-    updatePrice()
-
-def updatePrice():
-    global labelsDestroyed
-    #A loop that is long that "isMonitoring" is true, it will ask the Yahoo API for the price and update the GUI
-    while isMonitoring == True: #Dont call a refernece of the global variable "isMonitoring" here because im not changing the variable locally in the funtion
-        global stopThread
-        priceLabel.configure(text=get_live_price(ticker.upper()))
-        print("Looping!")
-        root.update()
-        if stopThread == True:
-            stopThread = False
-            print("Thread has stopped")
-            break
-
-def processGraph():
-    global canvas
-    #Start and end dates for graph
-    start = dt.datetime(2021, 3, 1)
-    end = dt.datetime.now()
-
-    #Grabbing data from the Yahoo finance API and stripping the data we need from it
-    data = pandas_datareader.DataReader(ticker, 'yahoo', start, end)
-    data = data[['Open', 'High', 'Low', 'Close']]
-    data.reset_index(inplace=True)
-    data['Date'] = data['Date'].map(mdates.date2num)
-
-    #Setting Figure for graph to display in, changing matplotlib default settings and displaying the graph
+    #Setting Figure for graph to display in and changing matplotlib default settings.
     f = Figure(figsize=(1, 1), dpi=65)
     a = f.add_subplot(111)
     a.set_facecolor('#17211E')
@@ -147,7 +105,60 @@ def processGraph():
     a.tick_params(axis='y', colors='white')
     myFmt = DateFormatter("%m / %d")
     a.xaxis.set_major_formatter(myFmt)
+
+def startThread():
+    #Starting a thread in the function that calls the "enterStock" function and sets off the chain reaction to call other functions
+    #This function is called when clicking the start button. 
+    global isMonitoring, t1
+
+    #Set isMonitoring to true because once we start this thread the code for refreshing the stock kicks off
+    isMonitoring = True
+    #Create and start the thread here so it doesnt bogg down the main loop of the GUI. USE THREAD.RUN(). threading.Thread() function in the python threading library uses thread.run() so it doesnt crash
+    t1 = Thread(target=enterStock)
+    t1.run()
+
+def enterStock(event=None):
+    #This function is called by the Thread function. A lot here so I will explain line by line of my shitty organization and thought processes. 
+    global priceLabel, tickerLabel, ticker
+
+    #Getting ticker from input
+    ticker = entry.get()
+    #setting a variable for the live price. Making sure its in caps
+    livePrice = get_live_price(ticker.upper())
+    #Rendering these labels outside the render function because we only want to see them when the start button is pressed.
+    priceLabel = Label(root, text=livePrice, bg='#C09F52', foreground='#00FF21', font=courier_new, borderwidth=3, relief="ridge", width=20)
+    priceLabel.place(x=50, y=170)
+    tickerLabel = Label(root, text=ticker.upper(), bg='#C09F52', foreground='black', font=courier_new, borderwidth=3, relief='ridge', width=9)
+    tickerLabel.place(x=50, y=130)
+
+    #Making the graph visible and constantly updating the stock price
+    renderGraph()
+    updatePrice()
+
+def updatePrice():
+    global labelsDestroyed
+    #A loop that is long that "isMonitoring" is true, it will ask the Yahoo API for the price and update the GUI
+    while isMonitoring == True: #Dont call a refernece of the global variable "isMonitoring" here because im not changing the variable locally in the funtion
+        global stopThread
+        priceLabel.configure(text=get_live_price(ticker.upper()))
+        root.update()
+        #By default I set a stopThread boolean to detect if the cancel button was pressed. This if statement will check if the stopThread variable was changed to True. If it was then we reset stopThread to false and break the loop
+        if stopThread == True:
+            stopThread = False
+            break
+
+def renderGraph():
+    global canvas, ticker, data, f, a
+
+    #Grabbing data from the Yahoo finance API and stripping the data we need from it
+    data = pandas_datareader.DataReader(ticker, 'yahoo', start, end)
+    data = data[['Open', 'High', 'Low', 'Close']]
+    data.reset_index(inplace=True)
+    data['Date'] = data['Date'].map(mdates.date2num)
+    
+    #Converting data to a candlestick graph
     candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
+    #Drawing the canvas on the Figure
     canvas = FigureCanvasTkAgg(f, root)
     canvas.draw()
     canvas.get_tk_widget().place(x=400, y=0, width=600, height=400)
@@ -158,17 +169,16 @@ def cancelProcess():
     global priceLabel
     global canvas
     global stopThread
-    #set up boolean variables to destroy these
+    #stopThread is set to True here to kick off the deletion of the thread.
     stopThread = True
+    #Destroying assets here. We destroy the canvas and not the actual Figure for multiple reasons. 1: It will crash, 2: Once we create the Figure it is blank and cached in ram. So, deleting it and recreating it every time would effect performance and load times. 
     tickerLabel.destroy()
     priceLabel.destroy()
     canvas.get_tk_widget().destroy()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Stop rendering assets through random functions and make a render function dumbass
 renderAssets()
+defineGraph()
 
 root.bind('<Return>', enterStock)
 root.mainloop()
-
-#GET YOUR GOD DAMN THREAD TO END
