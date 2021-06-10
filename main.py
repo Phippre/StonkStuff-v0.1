@@ -90,10 +90,11 @@ def startThread():
     isMonitoring = True
 
     t1 = Thread(target=enterStock)
-    t1.start()
+    t1.run()
 
 def enterStock(event=None):
     #This function is called by the Thread function. A lot here so I will explain line by line of my shitty organization and thought processes. [[]]
+    print("Thread is running")
     global priceLabel
     global tickerLabel
     global ticker
@@ -115,8 +116,11 @@ def updatePrice():
     while isMonitoring == True: #Dont call a refernece of the global variable "isMonitoring" here because im not changing the variable locally in the funtion
         global stopThread
         priceLabel.configure(text=get_live_price(ticker.upper()))
+        print("Looping!")
         root.update()
-        if stopThread:
+        if stopThread == True:
+            stopThread = False
+            print("Thread has stopped")
             break
 
 def processGraph():
