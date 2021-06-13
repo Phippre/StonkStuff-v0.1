@@ -90,22 +90,6 @@ def renderAssets():
     entry = Entry(root, width=25, borderwidth=1)
     entry.place(x=50, y=25)
 
-def defineGraph():
-    global f, a
-
-    #Setting Figure for graph to display in and changing matplotlib default settings.
-    f = Figure(figsize=(1, 1), dpi=65)
-    a = f.add_subplot(111)
-    a.set_facecolor('#17211E')
-    a.figure.set_facecolor('#17211E')
-    a.grid(True)
-    a.set_axisbelow(True)
-    a.set_title(ticker + ' Price', color='white')
-    a.tick_params(axis='x', colors='white')
-    a.tick_params(axis='y', colors='white')
-    myFmt = DateFormatter("%m / %d")
-    a.xaxis.set_major_formatter(myFmt)
-
 def startThread():
     #Starting a thread in the function that calls the "enterStock" function and sets off the chain reaction to call other functions
     #This function is called when clicking the start button. 
@@ -136,7 +120,6 @@ def enterStock(event=None):
     updatePrice()
 
 def updatePrice():
-    global labelsDestroyed
     #A loop that is long that "isMonitoring" is true, it will ask the Yahoo API for the price and update the GUI
     while isMonitoring == True: #Dont call a refernece of the global variable "isMonitoring" here because im not changing the variable locally in the funtion
         global stopThread
@@ -148,14 +131,25 @@ def updatePrice():
             break
 
 def renderGraph():
-    global canvas, ticker, data, f, a
+    global canvas, ticker, data
 
     #Grabbing data from the Yahoo finance API and stripping the data we need from it
     data = pandas_datareader.DataReader(ticker, 'yahoo', start, end)
     data = data[['Open', 'High', 'Low', 'Close']]
     data.reset_index(inplace=True)
     data['Date'] = data['Date'].map(mdates.date2num)
-    
+
+    f = Figure(figsize=(1, 1), dpi=65)
+    a = f.add_subplot(111)
+    a.set_facecolor('#17211E')
+    a.figure.set_facecolor('#17211E')
+    a.grid(True)
+    a.set_axisbelow(True)
+    a.set_title(ticker + ' Price', color='white')
+    a.tick_params(axis='x', colors='white')
+    a.tick_params(axis='y', colors='white')
+    myFmt = DateFormatter("%m / %d")
+    a.xaxis.set_major_formatter(myFmt)
     #Converting data to a candlestick graph
     candlestick_ohlc(a, data.values, width=.25, colorup='#00ff00')
     #Drawing the canvas on the Figure
@@ -164,11 +158,7 @@ def renderGraph():
     canvas.get_tk_widget().place(x=400, y=0, width=600, height=400)
 
 def cancelProcess():
-    global t1
-    global tickerLabel
-    global priceLabel
-    global canvas
-    global stopThread
+    global tickerLabel, priceLabel, canvas, stopThread
     #stopThread is set to True here to kick off the deletion of the thread.
     stopThread = True
     #Destroying assets here. We destroy the canvas and not the actual Figure for multiple reasons. 1: It will crash, 2: Once we create the Figure it is blank and cached in ram. So, deleting it and recreating it every time would effect performance and load times. 
@@ -178,7 +168,6 @@ def cancelProcess():
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 renderAssets()
-defineGraph()
 
 root.bind('<Return>', enterStock)
 root.mainloop()
