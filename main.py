@@ -22,13 +22,52 @@ os.chdir('C:/Users/parke/Documents/GitHub/StonkStuff')
 
 #SETTING UP ROOT WINDOW~~~~~~~~
 root = tk.Tk()
-root.title('~Stonk Stuff v0.3')
-root.geometry('1000x400')
-root.configure()
+
+rootWidth = 1000
+rootHeight = 400
+
+rootScreenWidth = root.winfo_screenwidth()
+rootScreenHeight = root.winfo_screenheight()
+
+rootX = (rootScreenWidth / 2) - (rootWidth / 2)
+rootY = (rootScreenHeight / 2) - (rootHeight / 2)
+
+root.iconify()
+root.title('~Stonk Stuff v0.4')
+root.geometry(f'{rootWidth}x{rootHeight}+{int(rootX)}+{int(rootY)}')
 root.iconbitmap('StonkStuff/res/rocket2.ico')
 root.resizable(False, False)
-root.attributes('-topmost', True)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#SETTING UP SPLASH SCREEN~~~~~~
+splashScreen = tk.Toplevel()
+
+splashScreenWidth = splashScreen.winfo_screenwidth()
+splashScreenHeight = splashScreen.winfo_screenheight()
+
+splashWidth = 300
+splashHeight = 300
+
+splashX = (splashScreenWidth / 2) - (splashWidth / 2)
+splashY = (splashScreenHeight / 2) - (splashHeight / 2)
+
+splashScreen.geometry(f"{splashWidth}x{splashHeight}+{int(splashX)}+{int(splashY)}")
+splashScreen.overrideredirect(True)
+splashScreen.focus_force()
+
+borderColor = Frame(splashScreen, background='red')
+logo = ImageTk.PhotoImage(Image.open("StonkStuff/res/Phippre2.png"))
+logoLabel = Label(splashScreen, image=logo, borderwidth=3)
+logoLabel.place(width=300, height=300)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#
+def resume():
+    splashScreen.destroy()
+    root.deiconify()
+
+root.after(3000, resume)
+#
 
 #Declaring dates for graph~~~~~
 end = dt.datetime.now()
@@ -65,14 +104,14 @@ font2 = font.Font(family='Comic Sans MS', size=8)
 def renderAssets():
     #In this function we create assets and place them onto the GUI
     global entry
-
-    space_label = Label(image = space_img, borderwidth=0)
+    
+    space_label = Label(image=space_img, borderwidth=0)
     space_label.place(width=400, height=400)
 
-    space_label2 = Label(image = space_img, borderwidth=0)
+    space_label2 = Label(image=space_img, borderwidth=0)
     space_label2.place(x=395)
 
-    space_label3 = Label(image = space_img, borderwidth=0)
+    space_label3 = Label(image=space_img, borderwidth=0)
     space_label3.place(x=600)
 
     moon_label = Label(image=moon_img, borderwidth=0)
@@ -170,4 +209,4 @@ def cancelProcess():
 renderAssets()
 
 root.bind('<Return>', enterStock)
-root.mainloop()
+mainloop()
