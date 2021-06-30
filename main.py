@@ -61,13 +61,13 @@ logoLabel = Label(splashScreen, image=logo, borderwidth=3)
 logoLabel.place(width=300, height=300)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#
+#Destroying splash screen and displaying root
 def resume():
     splashScreen.destroy()
     root.deiconify()
-
+#This line calls the function above to display the root window
 root.after(3000, resume)
-#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Declaring dates for graph~~~~~
 end = dt.datetime.now()
@@ -178,6 +178,7 @@ def renderGraph():
     data.reset_index(inplace=True)
     data['Date'] = data['Date'].map(mdates.date2num)
 
+    #Declaring settings for the graph
     f = Figure(figsize=(1, 1), dpi=65)
     a = f.add_subplot(111)
     a.set_facecolor('#17211E')
